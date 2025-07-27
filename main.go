@@ -9,7 +9,7 @@ import (
 
 func main(){
 
-	http.HandleFunc("/",handlers.HelloHandler)
+	http.HandleFunc("/hello",handlers.HelloHandler)
 	http.HandleFunc("/article",handlers.PostArticleHandler)
 	http.HandleFunc("/article/list",handlers.ArticleListHandler)
 	http.HandleFunc("/article/1",handlers.ArticleDetailHandler)
