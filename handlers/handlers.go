@@ -19,27 +19,36 @@ func HelloHandler (w http.ResponseWriter, req * http.Request){
 
 func PostArticleHandler (w http.ResponseWriter, req * http.Request){
 		io.WriteString(w, "post article!\n")
-		article := models.Article1
-
-		length, err := strconv.Atoi(req.Header.Get("Content-Length"))
+		
+		length, err := strconv.Atoi(req.Header.Get("Content-Length"))// Go ではこの書き方はちょっと古い・微妙。以下のように io.ReadAll(req.Body) を使うのが今の主流：
 		if err != nil {
 			http.Error(w, "cannot get content length\n", http.StatusBadRequest)
 			return
 		}
 		reqBodybuffer := make([]byte, length)
-
+		
 		if _,err := req.Body.Read(reqBodybuffer); ! errors.Is(err, io.EOF) {
 			http.Error(w, "fail to get request body \n", http.StatusBadRequest)
 			return
 		}
-
 		defer req.Body.Close()
+		fmt.Println("⭐️")
+		fmt.Println(reqBodybuffer)
+		
+		var reqArticle models.Article
+		if err := json.Unmarshal(reqBodybuffer, &reqArticle); err != nil {//マーシャルするの逆、解体。json（バイトスライス）からgoに解体する
+			http.Error(w, "fail to decode json\n", http.StatusBadRequest)
+			return
+		}
+		fmt.Println("👹")
+		fmt.Println(reqArticle)
+		article :=reqArticle
 
-		jsonData,err := json.Marshal(article)
+		jsonData,err := json.Marshal(article) //整列させる→goをJsonに整列させる→マーシャルする（goからバイト配列）
 		if err != nil{
 			http.Error(w, "failed to encode json \n",http.StatusInternalServerError)
 		}
-
+		
 		w.Write(jsonData)
 }
 
