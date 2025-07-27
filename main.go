@@ -65,5 +65,4 @@ func main(){
 
 	log.Println("server start at port 8080")
 	log.Fatal(http.ListenAndServe(":8080",r))
-	// http.ListenAndServe 関数の第二引数というのは、実は「サーバーの中で使うルータを指定する」部分なのです
 }
