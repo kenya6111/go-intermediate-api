@@ -23,7 +23,7 @@ func main(){
 	defer db.Close()
 
 	const sqlStr = `
-	select title, contents, username, nice from articles;`
+	select * from articles;`
 	rows, err := db.Query(sqlStr)
 	if err != nil {
 		fmt.Println(err)
@@ -34,7 +34,13 @@ func main(){
 	articleArray := make([]models.Article, 0)
 	for rows.Next() {
 		var article models.Article
-		err := rows.Scan(&article.Title, &article.Contents, &article.UserName,&article.NiceNum)
+		var createdTime sql.NullTime
+
+		err := rows.Scan(&article.ID, &article.Title, &article.Contents,&article.UserName, &article.NiceNum, &createdTime)
+
+		if createdTime.Valid {
+			article.CreatedAt = createdTime.Time
+		}
 
 		if err != nil {
 			fmt.Println(err)
