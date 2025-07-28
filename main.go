@@ -9,22 +9,43 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/kenya6111/go-intermediate-api/handlers"
+	"github.com/kenya6111/go-intermediate-api/models"
 )
 func main(){
 	dbUser := "docker"
 	dbPassword := "docker"
 	dbDatabase := "intermediateDB"
-	dbConn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s?parseTime=true", dbUser,dbPassword, dbDatabase)
+	dbConn := fmt.Sprintf("%s:%s@tcp(localhost:3306)/%s?parseTime=true", dbUser,dbPassword, dbDatabase)
 	db, err := sql.Open("mysql", dbConn)
 	if err != nil {
 		fmt.Println(err)
 	}
 	defer db.Close()
-	if err := db.Ping(); err != nil {
+
+	const sqlStr = `
+	select title, contents, username, nice from articles;`
+	rows, err := db.Query(sqlStr)
+	if err != nil {
 		fmt.Println(err)
-	} else {
-		fmt.Println("connect to DB")
+		return
 	}
+	defer rows.Close()
+
+	articleArray := make([]models.Article, 0)
+	for rows.Next() {
+		var article models.Article
+		err := rows.Scan(&article.Title, &article.Contents, &article.UserName,&article.NiceNum)
+
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			articleArray = append(articleArray, article)
+		}
+	}
+	fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+	fmt.Printf("%+v\n", articleArray)
+
+
 	r := mux.NewRouter()
 	r.HandleFunc("/hello",handlers.HelloHandler).Methods(http.MethodGet)
 	r.HandleFunc("/article",handlers.PostArticleHandler).Methods(http.MethodPost)
