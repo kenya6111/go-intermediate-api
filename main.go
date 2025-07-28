@@ -21,35 +21,25 @@ func main(){
 		fmt.Println(err)
 	}
 	defer db.Close()
+	articleID := 100
+	const sqlStr = `select * from articles where article_id = ?;`
+	row := db.QueryRow(sqlStr, articleID)
+	if err := row.Err(); err != nil {
+		fmt.Println(err)
+		return
+	}
+	var article models.Article
+	var createdTime sql.NullTime
 
-	const sqlStr = `
-	select * from articles;`
-	rows, err := db.Query(sqlStr)
+	err = row.Scan(&article.ID, &article.Title, &article.Contents, &article.UserName,&article.NiceNum, &createdTime)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	defer rows.Close()
-
-	articleArray := make([]models.Article, 0)
-	for rows.Next() {
-		var article models.Article
-		var createdTime sql.NullTime
-
-		err := rows.Scan(&article.ID, &article.Title, &article.Contents,&article.UserName, &article.NiceNum, &createdTime)
-
-		if createdTime.Valid {
-			article.CreatedAt = createdTime.Time
-		}
-
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			articleArray = append(articleArray, article)
-		}
+	if createdTime.Valid {
+		article.CreatedAt = createdTime.Time
 	}
-	fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-	fmt.Printf("%+v\n", articleArray)
+	fmt.Printf("%+v\n", article)
 
 
 	r := mux.NewRouter()
