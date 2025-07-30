@@ -1,8 +1,6 @@
 package repositories_test
 
 import (
-	"database/sql"
-	"fmt"
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -12,17 +10,6 @@ import (
 )
 
 func TestSelectArticleDetail(t *testing.T){
-	dbUser := "docker"
-	dbPassword := "docker"
-	dbDatabase := "intermediateDB"
-	dbConn := fmt.Sprintf("%s:%s@tcp(localhost:3306)/%s?parseTime=true", dbUser,
-	dbPassword, dbDatabase)
-	db, err := sql.Open("mysql", dbConn)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer db.Close()
-
 	tests := []struct {
 		testTitle string
 		expected models.Article
@@ -49,7 +36,7 @@ func TestSelectArticleDetail(t *testing.T){
 	}
 	for _, test := range tests {
 		t.Run(test.testTitle, func(t *testing.T) {
-			got, err := repositories.SelectArticleDetail(db, test.expected.ID)
+			got, err := repositories.SelectArticleDetail(testDB, test.expected.ID)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -69,5 +56,18 @@ func TestSelectArticleDetail(t *testing.T){
 				t.Errorf("NiceNum: get %d but want %d\n", got.NiceNum,test.expected.NiceNum)
 			}
 		})
+	}
+}
+
+func TestSelectArticleList(t *testing.T) {
+	// テスト対象の関数を実行
+	expectedNum := 5
+	got, err := repositories.SelectArticleList(testDB, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// SelectArticleList 関数から得た Article スライスの長さが期待通りでないなら FAIL にする
+	if num := len(got); num != expectedNum {
+		t.Errorf("want %d but got %d articles\n", expectedNum, num)
 	}
 }
