@@ -21,7 +21,7 @@ func TestSelectArticleDetail(t *testing.T){
 				Title: "firstPost",
 				Contents: "This is my first blog",
 				UserName: "saki",
-				NiceNum: 5,
+				NiceNum: 10,
 			},
 		}, {
 		testTitle: "subtest2",
@@ -69,5 +69,54 @@ func TestSelectArticleList(t *testing.T) {
 	// SelectArticleList 関数から得た Article スライスの長さが期待通りでないなら FAIL にする
 	if num := len(got); num != expectedNum {
 		t.Errorf("want %d but got %d articles\n", expectedNum, num)
+	}
+}
+
+// InsertArticle関数のテスト
+func TestInsertArticle(t *testing.T) {
+	article := models.Article{
+		Title:    "insertTest",
+		Contents: "testest",
+		UserName: "saki",
+	}
+
+	expectedArticleNum := 7
+	newArticle, err := repositories.InsertArticle(testDB, article)
+	if err != nil {
+		t.Error(err)
+	}
+	if newArticle.ID != expectedArticleNum {
+		t.Errorf("new article id is expected %d but got %d\n", expectedArticleNum, newArticle.ID)
+	}
+
+	t.Cleanup(func() {
+		const sqlStr = `
+			delete from articles
+			where title = ? and contents = ? and username = ?
+		`
+		testDB.Exec(sqlStr, article.Title, article.Contents, article.UserName)
+	})
+}
+
+// UpdateNiceNum関数のテスト
+func TestUpdateNiceNum(t *testing.T) {
+	articleID := 1
+	before, err := repositories.SelectArticleDetail(testDB, articleID)
+	if err != nil {
+		t.Fatal("fail to get before data")
+	}
+
+	err = repositories.UpdateNiceNum(testDB, articleID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	after, err := repositories.SelectArticleDetail(testDB, articleID)
+	if err != nil {
+		t.Fatal("fail to get after data")
+	}
+
+	if after.NiceNum-before.NiceNum != 1 {
+		t.Error("fail to update nice num")
 	}
 }
