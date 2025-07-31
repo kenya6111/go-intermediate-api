@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	articleNumPerPage = 2
+	articleNumPerPage = 5
 )
 
 // 新規投稿をDBにinsertする関数
