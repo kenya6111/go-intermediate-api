@@ -52,8 +52,8 @@ func main(){
 	`
 	result, err := db.Exec(sqlStrForInsert, articleForInsert.Title, articleForInsert.Contents, articleForInsert.UserName)
 	if err != nil {
-	fmt.Println(err)
-	return
+		fmt.Println(err)
+		return
 	}
 	// 結果を確認
 	fmt.Println(result.LastInsertId())
