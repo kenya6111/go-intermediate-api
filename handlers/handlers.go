@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/kenya6111/go-intermediate-api/models"
+	"github.com/kenya6111/go-intermediate-api/services"
 )
 
 
@@ -22,8 +23,11 @@ func PostArticleHandler (w http.ResponseWriter, req * http.Request){
 		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
 	}
 
-	article := reqArticle
-
+	article, err := services.PostArticleService(reqArticle)
+	if err != nil {
+		http.Error(w, "fail internal exec\n", http.StatusInternalServerError)
+		return
+	}
 	json.NewEncoder(w).Encode(article)
 }
 
@@ -42,8 +46,11 @@ func ArticleListHandler (w http.ResponseWriter, req * http.Request){
 			page = 1
 		}
 		fmt.Println(page)
-
-		articleList := []models.Article{models.Article1,models.Article2}
+		articleList, err := services.GetArticleListService(page)
+		if err != nil {
+			http.Error(w, "fail internal exec\n", http.StatusInternalServerError)
+			return
+		}
 		json.NewEncoder(w).Encode(articleList)
 }
 
@@ -53,9 +60,11 @@ func ArticleDetailHandler (w http.ResponseWriter, req * http.Request){
 			http.Error(w,"Invalid query parameter",http.StatusBadRequest)
 			return
 		}
-
-		fmt.Println(articleID)
-		article := models.Article2
+		article, err := services.GetArticleService(articleID)
+		if err != nil {
+			http.Error(w, "fail internal exec\n", http.StatusInternalServerError)
+			return
+		}
 		json.NewEncoder(w).Encode(article)
 }
 
@@ -65,7 +74,11 @@ func PostNiceHandler(w http.ResponseWriter, req * http.Request){
 		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
 	}
 
-	article := reqArticle
+	article, err := services.PostNiceService(reqArticle)
+	if err != nil {
+		http.Error(w, "fail internal exec\n", http.StatusInternalServerError)
+		return
+	}
 	json.NewEncoder(w).Encode(article)
 }
 
@@ -75,6 +88,10 @@ func PostCommentHandler(w http.ResponseWriter, req * http.Request){
 		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
 	}
 
-	comment := reqComment
+	comment, err := services.PostCommentService(reqComment)
+	if err != nil {
+		http.Error(w, "fail internal exec\n", http.StatusInternalServerError)
+		return
+	}
 	json.NewEncoder(w).Encode(comment)
 }
