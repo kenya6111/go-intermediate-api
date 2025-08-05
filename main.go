@@ -7,9 +7,7 @@ import (
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/kenya6111/go-intermediate-api/controllers"
-	"github.com/kenya6111/go-intermediate-api/routers"
-	"github.com/kenya6111/go-intermediate-api/services"
+	"github.com/kenya6111/go-intermediate-api/api"
 )
 
 var (
@@ -23,14 +21,11 @@ var (
 func main() {
 	db, err := sql.Open("mysql", dbConn)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
+		return
 	}
 	defer db.Close()
-
-	ser := services.NewMyAppService(db)
-	con := controllers.NewMyAppController(ser)
-
-	r := routers.NewRouter(con)
+	r := api.NewRouter(db)
 
 	log.Println("server start at port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
