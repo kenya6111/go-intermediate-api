@@ -27,6 +27,6 @@ func main() {
 	defer db.Close()
 	r := api.NewRouter(db)
 
-	log.Println("server start at port 8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Println("server start at port 8085")
+	log.Fatal(http.ListenAndServe(":8085", r))
 }
