@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/kenya6111/go-intermediate-api/api/middlewares"
 	"github.com/kenya6111/go-intermediate-api/controllers"
 	"github.com/kenya6111/go-intermediate-api/services"
 )
@@ -14,6 +15,7 @@ func NewRouter(db *sql.DB) *mux.Router {
 	aCon := controllers.NewArticleController(ser)
 	cCon := controllers.NewCommentController(ser)
 	r := mux.NewRouter()
+	r.Use(middlewares.LoggingMiddleware)
 	r.HandleFunc("/hello", aCon.HelloHandler).Methods(http.MethodGet)
 	r.HandleFunc("/article", aCon.PostArticleHandler).Methods(http.MethodPost)
 	r.HandleFunc("/article/list", aCon.ArticleListHandler).Methods(http.MethodGet)
